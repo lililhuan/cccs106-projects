@@ -61,6 +61,11 @@ I studied that teamwork is a thing to work in collaborative programming. GitHub 
 
 ## Screenshots
 
+![alt text](LAB2_SCREENSHOTS/commit_history.png) 
+![alt text](LAB2_SCREENSHOTS/hello_flet_GUI.png) 
+![alt text](LAB2_SCREENSHOTS/personal_info_gui.png) 
+![alt text](LAB2_SCREENSHOTS/successful_push.png)
+
 ### Git Repository
 - [ ] GitHub repository with commit history
 - [ ] Local git log showing commits
