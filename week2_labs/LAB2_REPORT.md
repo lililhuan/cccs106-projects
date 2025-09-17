@@ -10,7 +10,7 @@
 ### Repository Setup
 - **GitHub Repository:** https://github.com/lililhuan/cccs106-projects.git
 - **Local Repository:** ✅ Initialized and connected
-- **Commit History:** 5 commits with descriptive messages
+- **Commit History:** 7 commits with descriptive messages
 
 ### Git Skills Demonstrated
 - ✅ Repository initialization and configuration
@@ -60,6 +60,11 @@ Through the development of GUI I learnt how to make programs user-friendly. I am
 I studied that teamwork is a thing to work in collaborative programming. GitHub and similar tools: With this tool we are able to share our code, eliminate conflicts, and even fully back up to work on another section of the project simultaneously. It demonstrated to me that communication and task organization is equally significant to writing the code.
 
 ## Screenshots
+
+![alt text](LAB2_SCREENSHOTS/commit_history.png) 
+![alt text](LAB2_SCREENSHOTS/hello_flet_GUI.png) 
+![alt text](LAB2_SCREENSHOTS/personal_info_gui.png) 
+![alt text](LAB2_SCREENSHOTS/successful_push.png)
 
 ### Git Repository
 - [ ] GitHub repository with commit history
