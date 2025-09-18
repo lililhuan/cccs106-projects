@@ -1,7 +1,45 @@
 # app_logic.py
 import flet as ft
+import re
 from database import update_contact_db, delete_contact_db, add_contact_db, get_all_contacts_db
 
+def validate_email(email):
+    if not email:
+        return True
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+def validate_phone(phone):
+    if not phone:
+        return True
+    pattern = r'^[\d\s\-\(\)\+]+$'
+    return re.match(pattern, phone) is not None and len(phone.replace(' ', ' ').replace('-', ' ').replace('(','').replace('+', '')) >= 7
+
+def show_comfirmation_dialog(page, title, content, on_confirm, on_cancel=None):
+    def close_dialog(e):
+        dialog.open = False
+        page.update()
+        if on_cancel:
+            on_cancel()
+
+    def confirm_dialog(e):
+        dialog.open = False
+        page.update()
+        on_confirm()
+        
+    dialog = ft.AlertDialog(
+        modal = True,
+        title = ft.Text(title),
+        content = ft.Text(content),
+        actions = [
+            ft.TextButton("AHHHH NO DADDY", on_click=close_dialog),
+            ft.ElevatedButton("AHHH YES DADDY", on_click=confirm_dialog),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+
+    page.dialog = dialog
+    dialog.open = True
+    page.update()
 def display_contacts(page, contacts_list_view, db_conn):
     """Fetches and displays all contacts in the ListView."""
     contacts_list_view.controls.clear()
