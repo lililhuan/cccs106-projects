@@ -81,7 +81,7 @@ def create_contact_card(contact, page, db_conn, contacts_list_view):
             ft.PopupMenuItem(),
             ft.PopupMenuItem(
                 text = "DELETE",
-                icon = ft.icons.DELETE,
+                icon = ft.Icons.DELETE,
                 on_click = lambda _: confirm_delete_contact (
                     page, contact_id, name, db_conn, contacts_list_view
                 ),
@@ -97,7 +97,7 @@ def create_contact_card(contact, page, db_conn, contacts_list_view):
             ], alignment = ft.MainAxisAlignment.SPACE_BETWEEN),
             padding = 15,
         ),
-        elavaation = 2,
+        elavation = 2,
         margin =ft.margin.symmetric(vertical=2)
     )
 
@@ -129,7 +129,7 @@ def display_contacts(page, contacts_list_view, db_conn, search_term = ""):
                 content=ft.Text(
                     no_contacts_text,
                     size=16,
-                    color=ft.colors.GREY,
+                    color=ft.Colors.GREY,
                     text_align=ft.TextAlign.CENTER
                 ),
                 alignment=ft.alignment.center,
