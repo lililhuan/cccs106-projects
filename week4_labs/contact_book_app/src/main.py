@@ -17,11 +17,11 @@ def main(page: ft.Page):
     def toggle_theme(e):
         if page.theme_mode == ft.ThemeMode.LIGHT:
             page.theme_mode = ft.ThemeMode.DARK
-            theme_button.icon = ft.Icons.LIGHT_MODE
+            theme_button.Icon = ft.Icons.LIGHT_MODE
             theme_button.tooltip = "Switch to light mode"
         else:
             page.theme_mode = ft.ThemeMode.LIGHT
-            theme_button.icon = ft.Icons.DARK_MODE
+            theme_button.Icon = ft.Icons.DARK_MODE
             theme_button.tooltip = "Switch to dark mode"
 
     page.update()
@@ -33,7 +33,7 @@ def main(page: ft.Page):
         ft.Text("Contact Book", size=24, weight=ft.FontWeight.BOLD),
         ft.Container(expand=True),  # Spacer
         ft.IconButton(
-            icon=ft.icons.DARK_MODE,
+            icon=ft.Icons.DARK_MODE,
             tooltip="Switch to Dark Mode",
             on_click=toggle_theme,
         )
@@ -50,7 +50,7 @@ def main(page: ft.Page):
     search_input = ft.TextField(
         label="Search contacts...",
         width=400,
-        prefix_icon=ft.icons.SEARCH,
+        prefix_icon=ft.Icons.SEARCH,
         border_radius=10,
         filled=True,
         on_change=search_contacts
@@ -79,7 +79,7 @@ def main(page: ft.Page):
     
     clear_button = ft.OutlinedButton(
         text="Clear",
-        icon=ft.icons.CLEAR,
+        icon=ft.Icons.CLEAR,
         on_click=clear_inputs,
         style=ft.ButtonStyle(
             shape=ft.RoundedRectangleBorder(radius=10),
@@ -107,12 +107,12 @@ def main(page: ft.Page):
                 ft.Row([
                     ft.Text("Your Contacts:", size=18, weight=ft.FontWeight.W_500),
                     ft.Container(expand=True),
-                    ft.Text("* Required field", size=12, color=ft.colors.GREY),
+                    ft.Text("* Required field", size=12, color=ft.Colors.GREY),
                 ]),
                 search_input,
                 ft.Container(
                     content=contacts_list_view,
-                    border=ft.border.all(1, ft.colors.OUTLINE),
+                    border=ft.border.all(1, ft.Colors.OUTLINE),
                     border_radius=10,
                     padding=5
                 ),
