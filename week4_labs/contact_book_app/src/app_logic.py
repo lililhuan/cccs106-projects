@@ -109,38 +109,31 @@ def confirm_delete_contact (page, contact_id, name, db_conn, contacts_list_view)
         lambda: delete_contact(page, contact_id, db_conn, contacts_list_view)
     )
     
-def display_contacts(page, contacts_list_view, db_conn):
+def display_contacts(page, contacts_list_view, db_conn, search_term = ""):
     """Fetches and displays all contacts in the ListView."""
     contacts_list_view.controls.clear()
-    contacts = get_all_contacts_db(db_conn)
-
-    for contact in contacts:
-        contact_id, name, phone, email = contact
-
+    
+    if search_term:
+        contacts = [c for c in get_all_contacts_db(db_conn)
+                    if search_term.lower() in c[1].lower()]
+    else:
+        contacts = get_all_contacts_db(db_conn)
+    if contacts:
+        for contact in contacts:
+            contact_card = create_contact_card(contact, page, db_conn, contacts_list_view)
+            contacts_list_view.controls.apped(contact_card)
+    else:
+        no_contacts_text = "No contacts found." if search_term else "No contacts yet. Add your fist contacts above!"
         contacts_list_view.controls.append(
-            ft.ListTile(
-                title=ft.Text(name),
-                subtitle=ft.Text(f"Phone: {phone} | Email: {email}"),
-                trailing=ft.PopupMenuButton(
-                    icon=ft.Icons.MORE_VERT,
-                    items=[
-                        ft.PopupMenuItem(
-                            text="Edit",
-                            icon=ft.Icons.EDIT,
-                            on_click=lambda _, c=contact: open_edit_dialog(
-                                page, c, db_conn, contacts_list_view
-                            ),
-                        ),
-                        ft.PopupMenuItem(),  # divider
-                        ft.PopupMenuItem(
-                            text="Delete",
-                            icon=ft.Icons.DELETE,
-                            on_click=lambda _, cid=contact_id: delete_contact(
-                                page, cid, db_conn, contacts_list_view
-                            ),
-                        ),
-                    ],
+            ft.Container(
+                content=ft.Text(
+                    no_contacts_text,
+                    size=16,
+                    color=ft.colors.GREY,
+                    text_align=ft.TextAlign.CENTER
                 ),
+                alignment=ft.alignment.center,
+                padding=20
             )
         )
 
