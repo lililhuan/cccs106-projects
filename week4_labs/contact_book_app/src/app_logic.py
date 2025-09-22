@@ -60,13 +60,55 @@ def create_contact_card(contact, page, db_conn, contacts_list_view):
             ], spacing = 10)
         )
 
-    if email:
+    if email:  
         contact_info.append(
             ft.Row([
                 ft.Icon(ft.Icons.EMAIL, size = 16, color = ft.Colors.ORANGE),
                 ft.Text(email, size = 14)
             ], spacing = 10)
         )
+
+    popup_menu = ft.PopupMenuButton(
+        icon = ft.Icons.MORE_VERT,
+        items = [
+            ft.PopupMenuItem(
+                text = "Edit",
+                icon = ft.Icons.EDIT,
+                on_click = lambda _: open_edit_dialog (
+                    page, contact, db_conn, contacts_list_view
+                ),
+            ),
+            ft.PopupMenuItem(),
+            ft.PopupMenuItem(
+                text = "DELETE",
+                icon = ft.icons.DELETE,
+                on_click = lambda _: confirm_delete_contact (
+                    page, contact_id, name, db_conn, contacts_list_view
+                ),
+            ),
+        ],
+    )
+
+    return ft.Card(
+        content = ft.Container(
+            content = ft.Row([
+                ft.Column(contact_info, spacing = 5, expand = True),
+                popup_menu
+            ], alignment = ft.MainAxisAlignment.SPACE_BETWEEN),
+            padding = 15,
+        ),
+        elavaation = 2,
+        margin =ft.margin.symmetric(vertical=2)
+    )
+
+def confirm_delete_contact (page, contact_id, name, db_conn, contacts_list_view):
+    show_comfirmation_dialog(
+        page,
+        "Dete Contact",
+        f"Are you sure you want to delete '{name}'?",
+        lambda: delete_contact(page, contact_id, db_conn, contacts_list_view)
+    )
+    
 def display_contacts(page, contacts_list_view, db_conn):
     """Fetches and displays all contacts in the ListView."""
     contacts_list_view.controls.clear()
