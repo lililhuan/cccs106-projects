@@ -8,12 +8,13 @@ def validate_email(email):
         return True
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
+
 def validate_phone(phone):
     if not phone:
         return True
     pattern = r'^[\d\s\-\(\)\+]+$'
     return re.match(pattern, phone) is not None and len(phone.replace(' ', ' ').replace('-', ' ').replace('(','').replace('+', '')) >= 7
-
+    
 def show_comfirmation_dialog(page, title, content, on_confirm, on_cancel=None):
     def close_dialog(e):
         dialog.open = False
@@ -40,6 +41,32 @@ def show_comfirmation_dialog(page, title, content, on_confirm, on_cancel=None):
     page.dialog = dialog
     dialog.open = True
     page.update()
+    
+def create_contact_card(contact, page, db_conn, contacts_list_view):
+    contact_id, name, phone, email = contact
+
+    contact_info = [
+        ft.Row([
+            ft.Icon(ft.Icons.PERSON, size = 20, color = ft.Colors.BLUE),
+            ft.Text(name, size = 16, weight = ft.FontWeight.BOLD)
+        ], spacing = 10)
+    ]
+
+    if phone:
+        contact_info.append(
+            ft.Row([
+                ft.Icon(ft.Icons.PHONE, size = 16, color = ft.Colors.GREEN),
+                ft.Text(phone, size = 14)
+            ], spacing = 10)
+        )
+
+    if email:
+        contact_info.append(
+            ft.Row([
+                ft.Icon(ft.Icons.EMAIL, size = 16, color = ft.Colors.ORANGE),
+                ft.Text(email, size = 14)
+            ], spacing = 10)
+        )
 def display_contacts(page, contacts_list_view, db_conn):
     """Fetches and displays all contacts in the ListView."""
     contacts_list_view.controls.clear()
