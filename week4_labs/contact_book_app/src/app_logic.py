@@ -143,15 +143,48 @@ def display_contacts(page, contacts_list_view, db_conn, search_term = ""):
 def add_contact(page, inputs, contacts_list_view, db_conn):
     """Adds a new contact and refreshes the list."""
     name_input, phone_input, email_input = inputs
-    add_contact_db(db_conn, name_input.value, phone_input.value, email_input.value)
 
-    # clear input fields
-    for field in inputs:
-        field.value = ""
-
-    display_contacts(page, contacts_list_view, db_conn)
+    name_input.error_text = None
+    phone_input.error_text = None
+    email_input.error_text = None
+    
+    name = name_input.value.strip() if name_input.value else ""
+    phone = phone_input.value.strip() if phone_input.value else ""
+    email = email_input.value.strip() if email_input.value else ""
+    
+    has_error = False
+    
+    if not name:
+        name_input.error_text = "Name cannot be empty"
+        has_error = True
+    
+    if phone and not validate_phone(phone):
+        phone_input.error_text = "Invalid phone format"
+        has_error = True
+    
+    if email and not validate_email(email):
+        email_input.error_text = "Invalid email format"
+        has_error = True
+    
+    if has_error:
+        page.update()
+        return
+    
+    try:
+        add_contact_db(db_conn, name, phone or None, email or None)
+        
+        # Clear input fields (keeping your original approach)
+        for field in inputs:
+            field.value = ""
+            field.error_text = None
+        
+        display_contacts(page, contacts_list_view, db_conn)
+        page.show_snack_bar(ft.SnackBar(content=ft.Text("Contact added successfully!")))
+        
+    except Exception as e:
+        page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Error adding contact: {str(e)}")))
+    
     page.update()
-
 
 def delete_contact(page, contact_id, db_conn, contacts_list_view):
     """Deletes a contact and refreshes the list."""
