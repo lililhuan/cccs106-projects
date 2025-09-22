@@ -188,41 +188,81 @@ def add_contact(page, inputs, contacts_list_view, db_conn):
 
 def delete_contact(page, contact_id, db_conn, contacts_list_view):
     """Deletes a contact and refreshes the list."""
-    delete_contact_db(db_conn, contact_id)
-    display_contacts(page, contacts_list_view, db_conn)
-
+    try:
+        delete_contact_db(db_conn, contact_id)
+        display_contacts(page, contacts_list_view, db_conn)
+        page.show_snack_bar(ft.SnackBar(content=ft.Text("Contact deleted successfully!")))
+    except Exception as e:
+        page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Error deleting contact: {str(e)}")))
 
 def open_edit_dialog(page, contact, db_conn, contacts_list_view):
     """Opens a dialog to edit a contact's details."""
     contact_id, name, phone, email = contact
 
-    edit_name = ft.TextField(label="Name", value=name)
-    edit_phone = ft.TextField(label="Phone", value=phone)
-    edit_email = ft.TextField(label="Email", value=email)
+    edit_name = ft.TextField(label="Name", value=name, width=300)
+    edit_phone = ft.TextField(label="Phone", value=phone or "", width=300)
+    edit_email = ft.TextField(label="Email", value=email or "", width=300)
 
     def save_and_close(e):
-        update_contact_db(
-            db_conn,
-            contact_id,
-            edit_name.value,
-            edit_phone.value,
-            edit_email.value,
-        )
-        dialog.open = False
-        page.update()
-        display_contacts(page, contacts_list_view, db_conn)
+        # Clear previous errors
+        edit_name.error_text = None
+        edit_phone.error_text = None  
+        edit_email.error_text = None
+        
+        # Validation
+        has_error = False
+        
+        if not edit_name.value.strip():
+            edit_name.error_text = "Name cannot be empty"
+            has_error = True
+            
+        if edit_phone.value and not validate_phone(edit_phone.value):
+            edit_phone.error_text = "Invalid phone format"
+            has_error = True
+            
+        if edit_email.value and not validate_email(edit_email.value):
+            edit_email.error_text = "Invalid email format"
+            has_error = True
+            
+        if has_error:
+            page.update()
+            return
+        
+        # Use your existing update function
+        try:
+            update_contact_db(
+                db_conn,
+                contact_id,
+                edit_name.value.strip(),
+                edit_phone.value.strip() or None,
+                edit_email.value.strip() or None,
+            )
+            dialog.open = False
+            page.update()
+            display_contacts(page, contacts_list_view, db_conn)
+            page.show_snack_bar(ft.SnackBar(content=ft.Text("Contact updated successfully!")))
+        except Exception as e:
+            page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Error updating contact: {str(e)}")))
 
+    # Enhanced dialog with better styling
     dialog = ft.AlertDialog(
         modal=True,
         title=ft.Text("Edit Contact"),
-        content=ft.Column([edit_name, edit_phone, edit_email]),
+        content=ft.Column([
+            edit_name, 
+            edit_phone, 
+            edit_email
+        ], tight=True, spacing=10),
         actions=[
             ft.TextButton(
                 "Cancel",
                 on_click=lambda e: setattr(dialog, "open", False) or page.update(),
             ),
-            ft.TextButton("Save", on_click=save_and_close),
+            ft.ElevatedButton("Save", on_click=save_and_close),
         ],
+        actions_alignment=ft.MainAxisAlignment.END,
     )
 
-    page.open(dialog)
+    page.dialog = dialog
+    dialog.open = True
+    page.update()
