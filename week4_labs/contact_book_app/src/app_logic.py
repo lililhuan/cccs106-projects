@@ -13,9 +13,9 @@ def validate_phone(phone):
     if not phone:
         return True
     pattern = r'^[\d\s\-\(\)\+]+$'
-    return re.match(pattern, phone) is not None and len(phone.replace(' ', ' ').replace('-', ' ').replace('(','').replace('+', '')) >= 7
+    return re.match(pattern, phone) is not None and len(phone.replace(' ', ' ').replace('-', ' ').replace('(','').replace(')','').replace('+', '')) >= 7
     
-def show_comfirmation_dialog(page, title, content, on_confirm, on_cancel=None):
+def show_confirmation_dialog(page, title, content, on_confirm, on_cancel=None):
     def close_dialog(e):
         dialog.open = False
         page.update()
@@ -32,13 +32,13 @@ def show_comfirmation_dialog(page, title, content, on_confirm, on_cancel=None):
         title = ft.Text(title),
         content = ft.Text(content),
         actions = [
-            ft.TextButton("AHHHH NO DADDY", on_click=close_dialog),
-            ft.ElevatedButton("AHHH YES DADDY", on_click=confirm_dialog),
+            ft.TextButton("Cancel", on_click=close_dialog),
+            ft.ElevatedButton("Delete", on_click=confirm_dialog),
         ],
         actions_alignment=ft.MainAxisAlignment.END,
     )
 
-    page.dialog = dialog
+    page.overlay.append(dialog)
     dialog.open = True
     page.update()
     
@@ -67,24 +67,25 @@ def create_contact_card(contact, page, db_conn, contacts_list_view):
                 ft.Text(email, size = 14)
             ], spacing = 10)
         )
+    def handle_edit(e):
+        open_edit_dialog(page, contact, db_conn, contacts_list_view)
+
+    def handle_delete(e):
+        confirm_delete_contact(page, contact_id, name, db_conn, contacts_list_view)   
 
     popup_menu = ft.PopupMenuButton(
         icon = ft.Icons.MORE_VERT,
         items = [
             ft.PopupMenuItem(
-                text = "Edit",
+                text = "EDIT",
                 icon = ft.Icons.EDIT,
-                on_click = lambda _: open_edit_dialog (
-                    page, contact, db_conn, contacts_list_view
-                ),
+                on_click = handle_edit
             ),
             ft.PopupMenuItem(),
             ft.PopupMenuItem(
                 text = "DELETE",
                 icon = ft.Icons.DELETE,
-                on_click = lambda _: confirm_delete_contact (
-                    page, contact_id, name, db_conn, contacts_list_view
-                ),
+                on_click = handle_delete
             ),
         ],
     )
@@ -97,14 +98,14 @@ def create_contact_card(contact, page, db_conn, contacts_list_view):
             ], alignment = ft.MainAxisAlignment.SPACE_BETWEEN),
             padding = 15,
         ),
-        elavation = 2,
+        elevation = 2,
         margin =ft.margin.symmetric(vertical=2)
     )
 
 def confirm_delete_contact (page, contact_id, name, db_conn, contacts_list_view):
-    show_comfirmation_dialog(
+    show_confirmation_dialog(
         page,
-        "Dete Contact",
+        "Delete Contact",
         f"Are you sure you want to delete '{name}'?",
         lambda: delete_contact(page, contact_id, db_conn, contacts_list_view)
     )
@@ -117,13 +118,14 @@ def display_contacts(page, contacts_list_view, db_conn, search_term = ""):
         contacts = [c for c in get_all_contacts_db(db_conn)
                     if search_term.lower() in c[1].lower()]
     else:
-        contacts = get_all_contacts_db(db_conn)
+        contacts = get_all_contacts_db(db_conn)\
+
     if contacts:
         for contact in contacts:
             contact_card = create_contact_card(contact, page, db_conn, contacts_list_view)
-            contacts_list_view.controls.apped(contact_card)
+            contacts_list_view.controls.append(contact_card)
     else:
-        no_contacts_text = "No contacts found." if search_term else "No contacts yet. Add your fist contacts above!"
+        no_contacts_text = "No contacts found." if search_term else "No contacts yet. Add your first contacts above!"
         contacts_list_view.controls.append(
             ft.Container(
                 content=ft.Text(
@@ -179,11 +181,12 @@ def add_contact(page, inputs, contacts_list_view, db_conn):
             field.error_text = None
         
         display_contacts(page, contacts_list_view, db_conn)
-        page.show_snack_bar(ft.SnackBar(content=ft.Text("Contact added successfully!")))
-        
+
+        page.snack_bar = ft.SnackBar(content=ft.Text("Contact added successfully!"), bgcolor=ft.Colors.GREEN)
+        page.snack_bar.open = True
     except Exception as e:
-        page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Error adding contact: {str(e)}")))
-    
+        page.snack_bar = ft.SnackBar(content=ft.Text(f"Error adding contact: {str(e)}"), bgcolor=ft.Colors.RED)
+        page.snack_bar.open = True
     page.update()
 
 def delete_contact(page, contact_id, db_conn, contacts_list_view):
@@ -191,36 +194,68 @@ def delete_contact(page, contact_id, db_conn, contacts_list_view):
     try:
         delete_contact_db(db_conn, contact_id)
         display_contacts(page, contacts_list_view, db_conn)
-        page.show_snack_bar(ft.SnackBar(content=ft.Text("Contact deleted successfully!")))
+
+        page.snack_bar = ft.SnackBar(content=ft.Text("Contact deleted successfully!"), bgcolor=ft.Colors.GREEN)
+        page.snack_bar.open = True
     except Exception as e:
-        page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Error deleting contact: {str(e)}")))
+        page.snack_bar = ft.SnackBar(content=ft.Text(f"Error deleting contact: {str(e)}"), bgcolor=ft.Colors.RED)
+        page.snack_bar.open = True
+    page.update()
 
 def open_edit_dialog(page, contact, db_conn, contacts_list_view):
     """Opens a dialog to edit a contact's details."""
     contact_id, name, phone, email = contact
 
-    edit_name = ft.TextField(label="Name", value=name, width=300)
-    edit_phone = ft.TextField(label="Phone", value=phone or "", width=300)
-    edit_email = ft.TextField(label="Email", value=email or "", width=300)
+    edit_name = ft.TextField(
+        label="Name",
+        value=name,
+        width=350,
+        prefix_icon=ft.Icons.PERSON,
+        border_radius=10,
+        filled=True
+    )
+    edit_phone = ft.TextField(
+        label="Phone",
+        value=phone or "",
+        width=350,
+        prefix_icon=ft.Icons.PHONE,
+        border_radius=10,
+        filled=True
+    )
+    edit_email = ft.TextField(
+        label="Email",
+        value=email or "",
+        width=350,
+        prefix_icon=ft.Icons.EMAIL,
+        border_radius=10,
+        filled=True
+    )
+    def cancel_edit(e):
+        dialog.open = False
+        page.update()
 
     def save_and_close(e):
-        # Clear previous errors
         edit_name.error_text = None
         edit_phone.error_text = None  
         edit_email.error_text = None
         
+        # Get values
+        new_name = edit_name.value.strip() if edit_name.value else ""
+        new_phone = edit_phone.value.strip() if edit_phone.value else ""
+        new_email = edit_email.value.strip() if edit_email.value else ""
+        
         # Validation
         has_error = False
         
-        if not edit_name.value.strip():
-            edit_name.error_text = "Name cannot be empty"
+        if not new_name:
+            edit_name.error_text = "Name is required"
             has_error = True
             
-        if edit_phone.value and not validate_phone(edit_phone.value):
+        if new_phone and not validate_phone(new_phone):
             edit_phone.error_text = "Invalid phone format"
             has_error = True
             
-        if edit_email.value and not validate_email(edit_email.value):
+        if new_email and not validate_email(new_email):
             edit_email.error_text = "Invalid email format"
             has_error = True
             
@@ -228,41 +263,65 @@ def open_edit_dialog(page, contact, db_conn, contacts_list_view):
             page.update()
             return
         
-        # Use your existing update function
+        # Update contact
         try:
             update_contact_db(
                 db_conn,
                 contact_id,
-                edit_name.value.strip(),
-                edit_phone.value.strip() or None,
-                edit_email.value.strip() or None,
+                new_name,
+                new_phone or None,
+                new_email or None,
             )
             dialog.open = False
             page.update()
             display_contacts(page, contacts_list_view, db_conn)
-            page.show_snack_bar(ft.SnackBar(content=ft.Text("Contact updated successfully!")))
+
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text("Contact updated successfully!"),
+                bgcolor=ft.Colors.GREEN
+            )
+            page.snack_bar.open = True
         except Exception as e:
-            page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Error updating contact: {str(e)}")))
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text(f"Error updating contact: {str(e)}"),
+                bgcolor=ft.Colors.RED
+            )
+            page.snack_bar.open = True
+            page.update()
 
     # Enhanced dialog with better styling
     dialog = ft.AlertDialog(
         modal=True,
-        title=ft.Text("Edit Contact"),
-        content=ft.Column([
-            edit_name, 
-            edit_phone, 
-            edit_email
-        ], tight=True, spacing=10),
+        title=ft.Text("Edit Contact", size=20, weight=ft.FontWeight.BOLD),
+        content=ft.Container(
+            content=ft.Column([
+                edit_name, 
+                edit_phone, 
+                edit_email,
+                ft.Text("* Required field", size=12, color=ft.Colors.GREY)
+            ], tight=True, spacing=15),
+            width=400,
+            height=300
+        ),
         actions=[
-            ft.TextButton(
+            ft.OutlinedButton(
                 "Cancel",
-                on_click=lambda e: setattr(dialog, "open", False) or page.update(),
+                on_click=cancel_edit,
+                style=ft.ButtonStyle(
+                    shape=ft.RoundedRectangleBorder(radius=8)
+                )
             ),
-            ft.ElevatedButton("Save", on_click=save_and_close),
+            ft.ElevatedButton(
+                "Save Changes",
+                on_click=save_and_close,
+                style=ft.ButtonStyle(
+                    shape=ft.RoundedRectangleBorder(radius=8)
+                )
+            ),
         ],
         actions_alignment=ft.MainAxisAlignment.END,
     )
 
-    page.dialog = dialog
+    page.overlay.append(dialog)
     dialog.open = True
     page.update()
