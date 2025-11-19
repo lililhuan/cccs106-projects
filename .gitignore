@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python
 __pycache__/
 *.py[cod]
@@ -28,3 +29,11 @@ cache/
 build/
 dist/
 *.egg-info/
+=======
+__pycache__/ 
+*.pyc 
+.vscode/ 
+*.log 
+.env 
+ccs106_env_lastname 
+>>>>>>> 9f5b7b673c399fb5aecce65ea5dcd962eb617ce3
