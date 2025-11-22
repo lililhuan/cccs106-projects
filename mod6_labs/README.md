@@ -1,10 +1,10 @@
 # Weather Application - Module 6 Lab - Enhanced Edition
 
 ## Student Information
-- **Name**: [Your Full Name]
-- **Student ID**: [Your ID]
+- **Name**: Llesis, Roinel James A.
+- **Student ID**: 231004336
 - **Course**: CCCS 106
-- **Section**: [Your Section]
+- **Section**: BSCS3B
 
 ## Project Overview
 A comprehensive weather application built with Python and Flet, featuring dynamic weather-based theming, comprehensive alerts, multiple city management, and persistent data storage. This enhanced version includes 7+ advanced features while maintaining beginner-friendly design.
@@ -140,7 +140,7 @@ The app maintains three persistent data files:
 ### Setup Instructions
 ```bash
 # Clone the repository
-git clone https://github.com/<username>/cccs106-projects.git
+git clone https://github.com/lililhuan/cccs106-projects.git
 cd cccs106-projects/mod6_labs
 
 # Create virtual environment
